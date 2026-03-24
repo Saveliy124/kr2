@@ -7,7 +7,6 @@ import hashlib
 
 app = FastAPI(title="Задания 5.1 - 5.3")
 
-# Секретный ключ для подписи (в реальном проекте хранить в .env)
 SECRET_KEY = "super_secret_key_for_hmac"
 
 class LoginData(BaseModel):
@@ -21,7 +20,6 @@ def create_signature(user_id: str, timestamp: str) -> str:
 
 @app.post("/login")
 def login(data: LoginData, response: Response):
-    # Простая проверка учетных данных для теста
     if data.username != "user123" or data.password != "password123":
         response.status_code = 401
         return {"message": "Unauthorized"}
@@ -35,8 +33,8 @@ def login(data: LoginData, response: Response):
         key="session_token", 
         value=cookie_value, 
         httponly=True, 
-        secure=False,  # Для тестирования
-        max_age=300    # 5 минут
+        secure=False,  
+        max_age=300    
     )
     return {"message": "Logged in successfully"}
 
@@ -47,7 +45,6 @@ def profile(request: Request, response: Response):
         response.status_code = 401
         return {"message": "Unauthorized"}
     
-    # Разбиваем куки на 3 части
     parts = token.split(".")
     if len(parts) != 3:
         response.status_code = 401
@@ -55,7 +52,6 @@ def profile(request: Request, response: Response):
         
     user_id, timestamp_str, signature = parts
     
-    # 1. Проверка целостности (подписи)
     expected_sig = create_signature(user_id, timestamp_str)
     if not hmac.compare_digest(expected_sig, signature):
         response.status_code = 401
@@ -70,12 +66,10 @@ def profile(request: Request, response: Response):
     current_time = int(time.time())
     elapsed = current_time - last_active
     
-    # 2. Проверка времени жизни сессии
-    if elapsed >= 300: # Прошло 5 минут или больше
+    if elapsed >= 300: 
         response.status_code = 401
         return {"message": "Session expired"}
     
-    # 3. Продление сессии (если прошло от 3 до 5 минут)
     if elapsed >= 180: 
         new_timestamp = str(current_time)
         new_signature = create_signature(user_id, new_timestamp)

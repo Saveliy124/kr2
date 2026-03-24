@@ -3,7 +3,6 @@ from typing import Optional
 
 app = FastAPI(title="Задание 3.2")
 
-# Тестовые данные
 sample_products = [
     {"product_id": 123, "name": "Smartphone", "category": "Electronics", "price": 599.99},
     {"product_id": 456, "name": "Phone Case", "category": "Accessories", "price": 19.99},
@@ -12,7 +11,6 @@ sample_products = [
     {"product_id": 202, "name": "Smartwatch", "category": "Electronics", "price": 299.99}
 ]
 
-# Маршрут для поиска товаров (объявляется ПЕРВЫМ)
 @app.get("/products/search")
 def search_products(keyword: str, category: Optional[str] = None, limit: int = 10):
     results = []
@@ -22,7 +20,6 @@ def search_products(keyword: str, category: Optional[str] = None, limit: int = 1
                 results.append(p)
     return results[:limit]
 
-# Маршрут для получения информации о конкретном продукте
 @app.get("/product/{product_id}")
 def get_product(product_id: int):
     for p in sample_products:
